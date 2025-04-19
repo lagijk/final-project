@@ -1,6 +1,6 @@
 // File: app/api/summonerData/route.ts
 // Author: Alex Chen (achen119@bu.edu), 4/18/2025
-// Description: API handler that handles the summoner information in the backend
+// Description: API handler that handles the summoner information and provides puuid for match history 
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 

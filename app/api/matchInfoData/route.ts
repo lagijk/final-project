@@ -1,6 +1,6 @@
 // File: app/api/matchInfoData/route.ts
 // Author: Alex Chen (achen119@bu.edu), 4/18/2025
-// Description: API handler that handles the detailed match information in the backend
+// Description: API handler that handles the detailed match information using match id from match history
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 

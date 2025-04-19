@@ -1,6 +1,6 @@
 // File: app/components/match-history.tsx
 // Author: Alex Chen (achen119@bu.edu), 4/18/2025
-// Description: The frontend page that allows users to search their match history based on user id.
+// Description: The frontend page that allows users to search their match history based on username and tag.
 
 "use client";
 import {useEffect, useState} from "react";
@@ -21,12 +21,7 @@ export default function MatchHistory() {
                 // we need to use encodeURIComponent becasue user will enter # for tag, and we need to convert that to % for backend
                 const summonerData = await fetch(`/api/summonerData?summonerName=${encodeURIComponent(summonerName)}`);
                 const summonerResult = await summonerData.json();
-                console.log("summonerResult (raw):", JSON.stringify(summonerResult, null, 2));
-                if (!summonerResult || !summonerResult.puuid) {
-                    console.error("No puuid found for summoner result:", summonerResult);
-                    return;
-                }
-
+               
                 // retrieve the match ID data through route handler in backend
                 const matchData = await fetch (`/api/matchData?puuid=${summonerResult.puuid}`);
                 const matchResults = await matchData.json();
