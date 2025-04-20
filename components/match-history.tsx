@@ -4,7 +4,7 @@
 
 "use client";
 import {useEffect, useState} from "react";
-import { Match, Player } from "@/type";
+import { Match, Player, MatchType, PlayerType } from "@/type";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Grid from "@mui/material/Grid";
 import {Box, Typography, Card, Stack, Chip, TextField, Button, Accordion, AccordionSummary, AccordionDetails, Avatar, Tooltip} from "@mui/material";
@@ -34,8 +34,8 @@ export default function MatchHistory() {
                 );
 
                 // map the match information with the types
-                const matchDetail: Match[] = matchInfo.map((match: any) => {
-                    const participants: Player[] = match.info.participants.map((p: any) => ({
+                const matchDetail: Match[] = matchInfo.map((match: MatchType) => {
+                    const participants: Player[] = match.info.participants.map((p: PlayerType) => ({
                         championName: p.championName,
                         champLevel: p.champLevel,
                         summonerLevel: p.summonerLevel,
@@ -53,15 +53,31 @@ export default function MatchHistory() {
                     }) );
 
                     // get the participant that matches the searched puuid
-                    const user = match.info.participants.find((p: any) => p.puuid === summonerResult.puuid);
+                    const user = match.info.participants.find((p) => p.puuid === summonerResult.puuid);
                     // get the participant's team id and check if they won
-                    const winStatus = match.info.teams.find((team: any) => 
+                    const winStatus = match.info.teams.find((team) => 
                         team.teamId === user?.teamId
                     )?.win ?? false;
                     // return the info to be used in rendering
                     return {
                         gameMode: match.info.gameMode, 
-                        player: user,
+                        player: user ? {
+                            championName: user.championName,
+                            champLevel: user.champLevel,
+                            summonerLevel: user.summonerLevel,
+                            kills: user.kills,
+                            deaths: user.deaths,
+                            assists: user.assists,
+                            totalDamageDealt: user.totalDamageDealt,
+                            totalDamageTaken: user.totalDamageTaken,
+                            totalMinionsKilled: user.totalMinionsKilled,
+                            neutralMinionsKilled: user.neutralMinionsKilled,
+                            goldEarned: user.goldEarned,
+                            wardsPlaced: user.wardsPlaced,
+                            wardsKilled: user.wardsKilled,
+                            item: [user.item0, user.item1, user.item2, user.item3, user.item4, user.item5, user.item6],
+                        } : undefined,
+                        
                         win: winStatus,
                         participants,
                         gameName: summonerResult.gameName,
