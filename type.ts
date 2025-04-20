@@ -20,6 +20,7 @@ export type Player = {
     totalDamageDealt: number;
     totalDamageTaken: number;
     totalMinionsKilled: number;
+    neutralMinionsKilled: number;
     goldEarned: number;
     wardsPlaced: number;
     wardsKilled: number;

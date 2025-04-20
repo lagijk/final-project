@@ -45,6 +45,7 @@ export default function MatchHistory() {
                         totalDamageDealt: p.totalDamageDealt,
                         totalDamageTaken: p.totalDamageTaken,
                         totalMinionsKilled: p.totalMinionsKilled,
+                        neutralMinionsKilled: p.neutralMinionsKilled,
                         goldEarned: p.goldEarned,
                         wardsPlaced: p.wardsPlaced,
                         wardsKilled: p.wardsKilled,
@@ -121,9 +122,9 @@ export default function MatchHistory() {
                     </AccordionSummary>
 
                     <AccordionDetails sx={{ px: 4, py: 2 }}>
-                        <Grid container spacing={2} justifyContent="center" maxWidth="xl" margin="0 auto">
+                        <Grid container columns={12} columnSpacing={2} justifyContent="center" sx={{maxWidth: "xl", mx: "auto"}}>
                         {["Team 1", "Team 2"].map((label, teamIndex) => (
-                            <Grid item xs={12} md={6} key={label}>
+                            <Grid key={label} sx={{gridColumn: {xs: "span 12", md: "span 6"}}}>
                             <Typography variant="subtitle1" sx={{mb: 1}}> {label} </Typography>
 
                             <Stack spacing={1}>
@@ -153,7 +154,7 @@ export default function MatchHistory() {
                                     </Stack>
                                     <Stack direction="row" spacing={2} alignItems="center">
                                         <Typography>KDA: {p.kills}/{p.deaths}/{p.assists}</Typography>
-                                        <Typography>CS: {p.totalMinionsKilled}</Typography>
+                                        <Typography>CS: {(p.totalMinionsKilled ?? 0) + (p.neutralMinionsKilled ?? 0)}</Typography>
                                         <Typography>DMG: {p.totalDamageDealt}</Typography>
                                         <Typography>Gold: {p.goldEarned}</Typography>
                                         <Typography>Wards: {p.wardsPlaced} / {p.wardsKilled}</Typography>
