@@ -33,7 +33,7 @@ export default function MatchHistory() {
                     fetch(`/api/matchInfoData?matchResult=${matchResult}`).then(result => result.json()))
                 );
 
-                // map the match information with the player's puuid
+                // map the match information with the types
                 const matchDetail: Match[] = matchInfo.map((match: any) => {
                     const participants: Player[] = match.info.participants.map((p: any) => ({
                         championName: p.championName,
@@ -122,12 +122,12 @@ export default function MatchHistory() {
 
                     <AccordionDetails sx={{ px: 4, py: 2 }}>
                         <Grid container spacing={2} justifyContent="center" maxWidth="xl" margin="0 auto">
-                        {["Team 1", "Team 2"].map((label, teamI) => (
+                        {["Team 1", "Team 2"].map((label, teamIndex) => (
                             <Grid item xs={12} md={6} key={label}>
                             <Typography variant="subtitle1" sx={{mb: 1}}> {label} </Typography>
 
                             <Stack spacing={1}>
-                                {m.participants.slice(teamI * 5, teamI * 5 + 5).map((p, index) => (
+                                {m.participants.slice(teamIndex * 5, teamIndex * 5 + 5).map((p, index) => (
                                 <Box key={index}
                                     sx={{
                                         display: "flex",
@@ -176,6 +176,7 @@ export default function MatchHistory() {
                                     </Stack>
                                 </Box>
                                 ))}
+                                
                             </Stack>
                             </Grid>
                         ))}
