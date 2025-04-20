@@ -4,7 +4,10 @@
 
 "use client";
 import {useEffect, useState} from "react";
-import { Match } from "@/type";
+import { Match, Player } from "@/type";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Grid from "@mui/material/Grid";
+import {Box, Typography, Card, Stack, Chip, TextField, Button, Accordion, AccordionSummary, AccordionDetails, Avatar, Tooltip} from "@mui/material";
 
 export default function MatchHistory() {
     const [match, setMatch] = useState<Match[]>([]);
@@ -16,7 +19,6 @@ export default function MatchHistory() {
 
         async function fetchMatchHistory() {
             try {
-                console.log("Fetching match history for:", summonerName);
                 // retrieve summoner puuid data from riot api through route handler in backend
                 // we need to use encodeURIComponent becasue user will enter # for tag, and we need to convert that to % for backend
                 const summonerData = await fetch(`/api/summonerData?summonerName=${encodeURIComponent(summonerName)}`);
@@ -32,20 +34,39 @@ export default function MatchHistory() {
                 );
 
                 // map the match information with the player's puuid
-                const result = matchInfo.map((match: any) => {
-                    const player = match.info.participants.find(
-                        (p: any) => p.puuid === summonerResult.puuid 
-                    );
+                const matchDetail: Match[] = matchInfo.map((match: any) => {
+                    const participants: Player[] = match.info.participants.map((p: any) => ({
+                        championName: p.championName,
+                        champLevel: p.champLevel,
+                        summonerLevel: p.summonerLevel,
+                        kills: p.kills,
+                        deaths: p.deaths,
+                        assists: p.assists,
+                        totalDamageDealt: p.totalDamageDealt,
+                        totalDamageTaken: p.totalDamageTaken,
+                        totalMinionsKilled: p.totalMinionsKilled,
+                        goldEarned: p.goldEarned,
+                        wardsPlaced: p.wardsPlaced,
+                        wardsKilled: p.wardsKilled,
+                        item: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5, p.item6],
+                    }) );
+
+                    // get the participant that matches the searched puuid
+                    const user = match.info.participants.find((p: any) => p.puuid === summonerResult.puuid);
+                    // get the participant's team id and check if they won
+                    const winStatus = match.info.teams.find((team: any) => 
+                        team.teamId === user?.teamId
+                    )?.win ?? false;
+                    // return the info to be used in rendering
                     return {
-                        game: match.info.gameMode, 
-                        champion: player.championName,
-                        kills: player.kills, 
-                        deaths: player.deaths,
-                        assists: player.assists,
-                        win: player.win,
+                        gameMode: match.info.gameMode, 
+                        player: user,
+                        win: winStatus,
+                        participants,
+                        gameName: summonerResult.gameName,
                     };
                 });
-                setMatch(result); 
+                setMatch(matchDetail); 
 
             } catch (err) {
                 console.error("Error occurred", err);
@@ -56,34 +77,116 @@ export default function MatchHistory() {
     }, [summonerName]);
 
     return (
-        <div>
-            <h1>Recent Match History</h1>
-            <input
-                type="text"
-                placeholder="Game name #Game tag"
-                value={input}
-                required
-                onChange={(e) => setInput(e.target.value)}
-            />
-            <button onClick={() => {
-                const cleaned = input.replace(/\s+/g, "").trim();
-                setSummonerName(cleaned);
-            }}>
-                Search
-            </button>
+        <Box sx={{p:4}}> 
+            <Typography>Recent Match History</Typography>
+            <Stack direction="row" spacing={2} mb={4}>
+                <TextField
+                    label="Game name #Game tag"
+                    value={input}
+                    required
+                    fullWidth
+                    onChange={(e) => setInput(e.target.value)}
+                />
+                <Button 
+                    variant="contained"
+                    onClick={() => {
+                        const cleaned = input.replace(/\s+/g, "").trim();
+                        setSummonerName(cleaned);
+                }}>
+                    Search
+                </Button>
+            </Stack>
 
-            {match.length > 0 && (
-                <div>
-                    {match.map((m, i) => (
-                    <div key={i}>
-                        <p>{m.champion} | {m.game}</p>
-                        <p>{m.kills}/{m.deaths}/{m.assists} - {m.win ? "Victory": "Defeat"}</p>
-                    </div>
-                ))}
-                </div>
-            )}
+            {match.map((m, i) => (
+                <Accordion key={i}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Card
+                            sx={{width: "100%", backgroundColor: m.win ? "#e3f2fd" : "#ffebee", display: "flex", alignItems: "center", justifyContent: "space-between", p: 2, minHeight: 72,}}>
+                            <Stack direction="row" spacing={2} alignItems="center" sx={{ml: 1}}>
+                                <Avatar src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion/${m.player?.championName}.png`} alt={m.player?.championName}
+                                    sx={{width: 48, height: 48}}
+                                />
+                                <Box>
+                                    <Typography fontWeight="bold">{m.player?.championName}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{m.gameName}</Typography>
+                                </Box>
+                            </Stack>
 
-        </div>
+                            <Chip
+                                label={m.win ? "Victory" : "Defeat"}
+                                color={m.win ? "success" : "error"}
+                                sx={{fontSize: "1rem", height: 28}}
+                            />
+                        </Card>
+                    </AccordionSummary>
+
+                    <AccordionDetails sx={{ px: 4, py: 2 }}>
+                        <Grid container spacing={2} justifyContent="center" maxWidth="xl" margin="0 auto">
+                        {["Team 1", "Team 2"].map((label, teamI) => (
+                            <Grid item xs={12} md={6} key={label}>
+                            <Typography variant="subtitle1" sx={{mb: 1}}> {label} </Typography>
+
+                            <Stack spacing={1}>
+                                {m.participants.slice(teamI * 5, teamI * 5 + 5).map((p, index) => (
+                                <Box key={index}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        backgroundColor: "#f5f5f5",
+                                        p: 2,
+                                        gap: 2,
+                                        borderRadius: 2,
+                                        flexWrap: "wrap",
+                                    }}
+                                >
+                                    <Stack direction="row" spacing={2} alignItems="center">
+                                    <Avatar
+                                        src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion/${p.championName}.png`} alt={p.championName}
+                                        sx={{ width: 40, height: 40 }}
+                                    />
+                                    <Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Lvl {p.champLevel} - Player Lvl {p.summonerLevel}
+                                        </Typography>
+                                    </Box>
+                                    </Stack>
+                                    <Stack direction="row" spacing={2} alignItems="center">
+                                        <Typography>KDA: {p.kills}/{p.deaths}/{p.assists}</Typography>
+                                        <Typography>CS: {p.totalMinionsKilled}</Typography>
+                                        <Typography>DMG: {p.totalDamageDealt}</Typography>
+                                        <Typography>Gold: {p.goldEarned}</Typography>
+                                        <Typography>Wards: {p.wardsPlaced} / {p.wardsKilled}</Typography>
+                                    </Stack>
+
+                                    <Stack direction="row" spacing={0.5} sx={{flexWrap: "wrap"}}>
+                                    {p.item.map((itemId, itemIdx) =>
+                                        itemId > 0 ? (
+                                        <Tooltip title={`Item ${itemId}`} key={itemIdx}>
+                                            <img src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/item/${itemId}.png`} alt={`item ${itemId}`}
+                                                width={24}
+                                                height={24}
+                                                style={{ borderRadius: 4 }}
+                                            />
+                                        </Tooltip>
+                                        ) : (
+                                        <Box key={itemIdx} width={24} height={24} />
+                                        )
+                                    )}
+                                    </Stack>
+                                </Box>
+                                ))}
+                            </Stack>
+                            </Grid>
+                        ))}
+                        </Grid>
+
+                    </AccordionDetails>
+                        
+                </Accordion>
+            ))}
+           
+        </Box>
     );
 }
 
