@@ -66,20 +66,4 @@ export type TeamType = {
     win: boolean;
   };
 
-export type Profile = {
-    gameName: string;
-    tagLine: string;
-    profileIconId: number;
-    summonerLevel: number;
-    puuid: string;
-    ranked: RankedInfo[];
-};
 
-export type RankedInfo = {
-    queueType: string;
-    tier: string;
-    rank: string;
-    leaguePoints: number;
-    wins: number;
-    losses: number;
-};

@@ -25,18 +25,18 @@ export async function GET(request: Request) {
 
     try {
         const rawData = await fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchResult}`,
-            { 
+            {
                 headers: {
-                    'X-Riot-Token': process.env.RIOT_GAMES_API_KEY 
+                    'X-Riot-Token': process.env.RIOT_GAMES_API_KEY
                 }
             });
-            const result = await rawData.json();
-            return Response.json(result);
+        const result = await rawData.json();
+        return Response.json(result);
     } catch (err: unknown) {
         let message = "Unknown error";
-            if (err instanceof Error) {
-                message = err.message;
-            }
+        if (err instanceof Error) {
+            message = err.message;
+        }
         return Response.json({error: message});
     }
 }
