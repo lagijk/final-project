@@ -32,7 +32,7 @@ export default function Home() {
                 </Button>
             </Stack>
             <ProfileCard summonerName={summonerName} />
-            <MatchHistory />
+            <MatchHistory summonerName={summonerName} />
         </Box>
     );
 }

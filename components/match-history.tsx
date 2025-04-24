@@ -7,12 +7,15 @@ import {useEffect, useState} from "react";
 import { Match, Player, MatchType, PlayerType } from "@/type";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Grid from "@mui/material/Grid";
-import {Box, Typography, Card, Stack, Chip, TextField, Button, Accordion, AccordionSummary, AccordionDetails, Avatar, Tooltip} from "@mui/material";
+import {Box, Typography, Card, Stack, Chip, Accordion, AccordionSummary, AccordionDetails, Avatar, Tooltip} from "@mui/material";
 
-export default function MatchHistory() {
+// get the riot games user name and tag from home page as prop
+type MatchHistoryProps = {
+    summonerName: string; 
+};
+
+export default function MatchHistory({summonerName}: MatchHistoryProps) {
     const [match, setMatch] = useState<Match[]>([]);
-    const [summonerName, setSummonerName] = useState("");
-    const [input, setInput] = useState("");
 
     useEffect(() => {
         if (!summonerName) return;
@@ -95,25 +98,7 @@ export default function MatchHistory() {
 
     return (
         <Box sx={{p:4}}>
-            <Typography>Recent Match History</Typography>
-            <Stack direction="row" spacing={2} mb={4}>
-                <TextField
-                    label="Game name #Game tag"
-                    value={input}
-                    required
-                    fullWidth
-                    onChange={(e) => setInput(e.target.value)}
-                />
-                <Button
-                    variant="contained"
-                    onClick={() => {
-                        const cleaned = input.replace(/\s+/g, "").trim();
-                        setSummonerName(cleaned);
-                    }}>
-                    Search
-                </Button>
-            </Stack>
-
+           
             {match.map((m, i) => (
                 <Accordion key={i}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
