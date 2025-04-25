@@ -1,6 +1,6 @@
 // File: app/api/summonerData/route.ts
 // Author: Alex Chen (achen119@bu.edu) 4/18/2025, Jihye Lee (jh020211@bu.edu) 4/24/2025 (updated)
-// Description: API handler that handles the summoner information and provides puuid for match history
+// Description: API handler that handles the summoner information, and provides puuid for match history and player profile
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
             { error: "Invalid Riot ID format" }
         );
     }
-
+    // split the riot id into gameName and tagLine (e.g. LaggyDic#25069 into Laggy Dic, 25069)
     const [gameName, tagLine] = riotId.split("#");
 
     try {
@@ -33,6 +33,9 @@ export async function GET(request: Request) {
             }
         });
         const accountData = await accountRes.json();
+
+        //========== above done by Alex ================//
+        //========== below done by Jihye ===============//
 
         // fetch summoner info from summoner-v4 API (gives profileIconId, summonerId, etc.)
         const summonerRes = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountData.puuid}`, {
@@ -89,6 +92,7 @@ export async function GET(request: Request) {
             lastChampionName
         });
 
+    // error handling
     } catch (err: unknown) {
         let message = "Unknown error";
         if (err instanceof Error) {

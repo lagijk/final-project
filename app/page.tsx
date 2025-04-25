@@ -1,3 +1,7 @@
+// File: app/page.tsx
+// Author: Alex Chen (achen119@bu.edu), 4/18/2025, Jihye Lee (jh020211@bu.edu) 4/24/2025 (updated)
+// Description: home page that allows user to search their riot games id to display profile and match history
+
 "use client";
 import { useState } from "react";
 import MatchHistory from "@/components/match-history";

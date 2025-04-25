@@ -24,14 +24,18 @@ export async function GET(request: Request) {
     }
 
     try {
+        // call riot games' match v5 api to fetch detail information on each match
         const rawData = await fetch(`https://americas.api.riotgames.com/lol/match/v5/matches/${matchResult}`,
             {
                 headers: {
                     'X-Riot-Token': process.env.RIOT_GAMES_API_KEY
                 }
             });
+        // return the list of detail match result to the frontend
         const result = await rawData.json();
         return Response.json(result);
+
+    // error handling
     } catch (err: unknown) {
         let message = "Unknown error";
         if (err instanceof Error) {

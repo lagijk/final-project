@@ -1,6 +1,6 @@
 // File: app/components/match-history.tsx
 // Author: Alex Chen (achen119@bu.edu), 4/18/2025
-// Description: The frontend page that allows users to search their match history based on username and tag.
+// Description: The component that allows users to search their match history based on username and tag.
 
 "use client";
 import {useEffect, useState} from "react";
@@ -9,12 +9,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Grid from "@mui/material/Grid";
 import {Box, Typography, Card, Stack, Chip, Accordion, AccordionSummary, AccordionDetails, Avatar, Tooltip} from "@mui/material";
 
-// get the riot games user name and tag from home page as prop
+// get the prop from home page, riot games ID and tag 
 type MatchHistoryProps = {
     summonerName: string; 
 };
 
 export default function MatchHistory({summonerName}: MatchHistoryProps) {
+    // hold list of matches to display
     const [match, setMatch] = useState<Match[]>([]);
 
     useEffect(() => {
@@ -22,22 +23,23 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
 
         async function fetchMatchHistory() {
             try {
-                // retrieve summoner puuid data from riot api through route handler in backend
+                // retrieve summoner's unique puuid data from riot api through route handler in backend
                 // we need to use encodeURIComponent becasue user will enter # for tag, and we need to convert that to % for backend
                 const summonerData = await fetch(`/api/summonerData?summonerName=${encodeURIComponent(summonerName)}`);
                 const summonerResult = await summonerData.json();
 
-                // retrieve the match ID data through route handler in backend
+                // using puuid, retrieve the match ID data through route handler in backend
                 const matchData = await fetch (`/api/matchData?puuid=${summonerResult.puuid}`);
                 const matchResults = await matchData.json();
 
-                // retrieve the match information for the first 20 games based on user's match ID data
+                // retrieve the detail match information for each game from the first 20 games based on user's match ID data
                 const matchInfo = await Promise.all(matchResults.slice(0, 20).map((matchResult: string) =>
                     fetch(`/api/matchInfoData?matchResult=${matchResult}`).then(result => result.json()))
                 );
 
-                // map the match information with the types
+                // map the match information with custom types from type.ts
                 const matchDetail: Match[] = matchInfo.map((match: MatchType) => {
+                    // convert participant data from the riot api to custom player type
                     const participants: Player[] = match.info.participants.map((p: PlayerType) => ({
                         championName: p.championName,
                         champLevel: p.champLevel,
@@ -55,13 +57,13 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                         item: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5, p.item6],
                     }) );
 
-                    // get the participant that matches the searched puuid
+                    // get the current participant that matches the searched puuid
                     const user = match.info.participants.find((p) => p.puuid === summonerResult.puuid);
-                    // get the participant's team id and check if they won
+                    // get the current participant's team id and check if they won the match
                     const winStatus = match.info.teams.find((team) =>
                         team.teamId === user?.teamId
                     )?.win ?? false;
-                    // return the info to be used in rendering
+                    // return all the info and pass it to rendering
                     return {
                         gameMode: match.info.gameMode,
                         player: user ? {
@@ -86,8 +88,9 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                         gameName: summonerResult.gameName,
                     };
                 });
+                // save the match result into the state
                 setMatch(matchDetail);
-
+            // error handling
             } catch (err) {
                 console.error("Error occurred", err);
             }
@@ -96,15 +99,18 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
         fetchMatchHistory();
     }, [summonerName]);
 
+    // render the match results using material ui's Accordions
     return (
         <Box sx={{p:4}}>
-           
+
             {match.map((m, i) => (
                 <Accordion key={i}>
+                    
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Card
-                            sx={{width: "100%", backgroundColor: m.win ? "#e3f2fd" : "#ffebee", display: "flex", alignItems: "center", justifyContent: "space-between", p: 2, minHeight: 72,}}>
+                        {/*a summary card showing the champion played by the player, thier username, and if they won or not*/}
+                        <Card sx={{width: "100%", backgroundColor: m.win ? "#e3f2fd" : "#ffebee", display: "flex", alignItems: "center", justifyContent: "space-between", p: 2, minHeight: 72,}}>
                             <Stack direction="row" spacing={2} alignItems="center" sx={{ml: 1}}>
+                                {/*shows the champion's avator played by the user using the public data dragon api */}
                                 <Avatar src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion/${m.player?.championName}.png`} alt={m.player?.championName}
                                         sx={{width: 48, height: 48}}
                                 />
@@ -113,16 +119,14 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                                     <Typography variant="body2" color="text.secondary">{m.gameName}</Typography>
                                 </Box>
                             </Stack>
-
-                            <Chip
-                                label={m.win ? "Victory" : "Defeat"}
-                                color={m.win ? "success" : "error"}
-                                sx={{fontSize: "1rem", height: 28}}
-                            />
+                           
+                            <Chip label={m.win ? "Victory" : "Defeat"} color={m.win ? "success" : "error"} sx={{fontSize: "1rem", height: 28}}/>
                         </Card>
                     </AccordionSummary>
 
+                    {/*shows detail information about the match after the user expand the summary tab */}
                     <AccordionDetails sx={{ px: 4, py: 2 }}>
+                        {/*splits the players into 2 teams, each team with 5 players (note: this does not work with gamemode like arena where there are more than 10 players)*/}
                         <Grid container columns={12} columnSpacing={2} justifyContent="center" sx={{maxWidth: "xl", mx: "auto"}}>
                             {["Team 1", "Team 2"].map((label, teamIndex) => (
                                 <Grid key={label} sx={{gridColumn: {xs: "span 12", md: "span 6"}}}>
@@ -131,8 +135,7 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                                     <Stack spacing={1}>
                                         {m.participants.slice(teamIndex * 5, teamIndex * 5 + 5).map((p, index) => (
                                             <Box key={index}
-                                                 sx={{
-                                                     display: "flex",
+                                                 sx={{display: "flex",
                                                      alignItems: "center",
                                                      justifyContent: "space-between",
                                                      backgroundColor: "#f5f5f5",
@@ -143,8 +146,8 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                                                  }}
                                             >
                                                 <Stack direction="row" spacing={2} alignItems="center">
-                                                    <Avatar
-                                                        src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion/${p.championName}.png`} alt={p.championName}
+                                                    {/*fetch champion avator played by each user from public data dragon api */}
+                                                    <Avatar src={`https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion/${p.championName}.png`} alt={p.championName}
                                                         sx={{ width: 40, height: 40 }}
                                                     />
                                                     <Box>
@@ -153,14 +156,18 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                                                         </Typography>
                                                     </Box>
                                                 </Stack>
+
+                                                {/*displays each player's combat stats from that match in a row */}
                                                 <Stack direction="row" spacing={2} alignItems="center">
                                                     <Typography>KDA: {p.kills}/{p.deaths}/{p.assists}</Typography>
+                                                    {/*we need to add totalMinionsKilled and neutralMinionsKilled because totalMinions does not include jungle monsters */}
                                                     <Typography>CS: {(p.totalMinionsKilled ?? 0) + (p.neutralMinionsKilled ?? 0)}</Typography>
                                                     <Typography>DMG: {p.totalDamageDealt}</Typography>
                                                     <Typography>Gold: {p.goldEarned}</Typography>
                                                     <Typography>Wards: {p.wardsPlaced} / {p.wardsKilled}</Typography>
                                                 </Stack>
-
+                                                
+                                                {/*fetch the item images purchased by each player by the end of the match from public data dragon api */}
                                                 <Stack direction="row" spacing={0.5} sx={{flexWrap: "wrap"}}>
                                                     {p.item.map((itemId, itemIdx) =>
                                                         itemId > 0 ? (
@@ -171,7 +178,7 @@ export default function MatchHistory({summonerName}: MatchHistoryProps) {
                                                                      style={{ borderRadius: 4 }}
                                                                 />
                                                             </Tooltip>
-                                                        ) : (
+                                                        ):(
                                                             <Box key={itemIdx} width={24} height={24} />
                                                         )
                                                     )}
