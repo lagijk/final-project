@@ -1,5 +1,5 @@
 import React from "react";
-
+import Header from "@/components/Header";
 export default function RootLayout(
   {children,}: 
     Readonly<{children: React.ReactNode;}>
@@ -7,6 +7,7 @@ export default function RootLayout(
   return (
     <html lang="en">
       <body>
+        <Header />
         {children}
       </body>
     </html>

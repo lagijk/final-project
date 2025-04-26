@@ -4,7 +4,7 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Avatar, Typography, Stack, CircularProgress } from "@mui/material";
+import { Box, Avatar, Typography, Stack } from "@mui/material";
 import VerifiedIcon from "@mui/icons-material/Verified";
 
 // Type for individual ranked queue information
@@ -37,13 +37,12 @@ export default function ProfileCard({ summonerName }: ProfileCardProps) {
     const [textColor, setTextColor] = useState("#fff");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [typedText, setTypedText] = useState("");
     const defaultIconId = 29;
 
-    // Champion to use for banner background, defaults to Lux
     const bannerChampion = profile?.lastChampionName || "Lux";
     const bannerUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${bannerChampion}_0.jpg`;
 
-    // Fetch profile data from backend API
     useEffect(() => {
         if (!summonerName) return;
 
@@ -53,7 +52,7 @@ export default function ProfileCard({ summonerName }: ProfileCardProps) {
                 const res = await fetch(`/api/summonerData?summonerName=${encodeURIComponent(summonerName)}`);
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
-                setProfile(data); // Save profile data to state
+                setProfile(data);
             } catch (err: unknown) {
                 let message = "Unknown error";
                 if (err instanceof Error) message = err.message;
@@ -65,6 +64,22 @@ export default function ProfileCard({ summonerName }: ProfileCardProps) {
 
         fetchProfile();
     }, [summonerName]);
+
+    // Real typing effect
+    useEffect(() => {
+        if (loading) {
+            const text = "Summoning your champion...";
+            let idx = 0;
+            const interval = setInterval(() => {
+                setTypedText(text.slice(0, idx + 1));
+                idx++;
+                if (idx === text.length) clearInterval(interval);
+            }, 100); // typing speed
+            return () => clearInterval(interval);
+        } else {
+            setTypedText(""); // clear after loading
+        }
+    }, [loading]);
 
     // Analyze banner image brightness to dynamically set text color
     useEffect(() => {
@@ -96,28 +111,50 @@ export default function ProfileCard({ summonerName }: ProfileCardProps) {
         };
     }, [bannerUrl]);
 
-    // Helper to calculate win rate %
     const calcWinRate = (wins: number, losses: number) =>
         wins + losses === 0 ? 0 : Math.round((wins / (wins + losses)) * 100);
 
-    // Find solo queue info
     const soloQ = Array.isArray(profile?.ranked)
         ? profile.ranked.find((r) => r.queueType === "RANKED_SOLO_5x5")
         : null;
 
-    // Find flex queue info
     const flexQ = Array.isArray(profile?.ranked)
         ? profile.ranked.find((r) => r.queueType === "RANKED_FLEX_SR")
         : null;
 
     return (
         <Box sx={{ p: 4 }}>
-            {/* Loading spinner */}
-            {loading && <CircularProgress />}
+            {/* Loading typing animation */}
+            {loading && (
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: 300,
+                        gap: 2,
+                    }}
+                >
+                    <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{
+                            fontFamily: "monospace",
+                            fontSize: "1.5rem",
+                            color: "black", 
+                        }}
+                    >
+                        {typedText}
+                    </Typography>
+                </Box>
+            )}
+
             {/* Error message */}
             {error && <Typography color="error">{error}</Typography>}
+
             {/* Profile display */}
-            {profile && (
+            {profile && !loading && (
                 <Box
                     sx={{
                         backgroundImage: `url(${bannerUrl})`,
