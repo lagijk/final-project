@@ -1,6 +1,6 @@
 // File: type.ts
-// Author: Alex Chen (achen119@bu.edu), 4/18/2025
-// Description: Exports match type and player type
+// Author: Alex Chen (achen119@bu.edu), 4/18/2025, Yutong Qin (yutongq@bu.edu), 4/26/2025 (updated)
+// Description: Exports match type and player type, and types for leaderboard
 
 export type Match = {
     gameMode: string;
@@ -66,4 +66,31 @@ export type TeamType = {
     win: boolean;
   };
 
+export type MiniSeriesDTO = {
+    losses: number;
+    progress: string;
+    target: number;
+    wins: number;
+}
 
+export type LeagueItemDTO = {
+  freshBlood: boolean;
+  wins: number;
+  miniSeries?: MiniSeriesDTO;
+  inactive: boolean;
+  veteran: boolean;
+  hotStreak: boolean;
+  rank: string;
+  leaguePoints: number;
+  losses: number;
+  summonerId: string;
+  puuid: string;
+}
+
+export type LeagueListDTO = {
+  leagueId: string;
+  entries: LeagueItemDTO[];
+  tier: string;
+  name: string;
+  queue: string
+}
