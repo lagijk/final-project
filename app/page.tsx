@@ -21,7 +21,7 @@ export default function Home() {
             >
                 <Container maxWidth="sm">
                     <Typography variant="h4" fontWeight="bold" gutterBottom>
-                        Welcome to Summoner's Archive!
+                        Welcome to Summoner&apos;s Archive!
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
                         This app lets you explore <strong>summoner</strong> profiles and view their recent match history.

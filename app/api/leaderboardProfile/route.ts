@@ -4,6 +4,11 @@
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 
+type Participant = {
+  puuid: string;
+  championName: string;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const puuid = url.searchParams.get("puuid");
@@ -67,7 +72,7 @@ export async function GET(request: Request) {
 
       if (matchDetailRes.ok) {
         const matchDetail = await matchDetailRes.json();
-        const participant = matchDetail.info.participants.find((p: any) => p.puuid === puuid);
+        const participant = matchDetail.info.participants.find((p: Participant) => p.puuid === puuid);
 
         if (participant) {
           lastChampionName = participant.championName || "Lux";

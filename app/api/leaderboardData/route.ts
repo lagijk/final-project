@@ -4,6 +4,8 @@
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 
+import { LeagueItemDTO } from "@/type"
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
     const entries = leaderboardData.entries ?? [];
 
     // store those necessary base info into the list to avoid exceeding api limit
-    const trimmedEntries = entries.slice(0, 30).map((player: any) => ({
+    const trimmedEntries = entries.slice(0, 30).map((player: LeagueItemDTO) => ({
       summonerId: player.summonerId,
       puuid: player.puuid,
       leaguePoints: player.leaguePoints,
