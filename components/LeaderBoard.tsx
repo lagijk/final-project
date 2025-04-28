@@ -114,7 +114,7 @@ export default function LeaderBoard({ leaderboardId }: LeaderBoardProps) {
     // display the rendered result using Material UI
     return (
         <Box sx={{ p: 4 }}>
-            {["RANKED_SOLO_5x5", "RANKED_FLEX_SR"].map((queue, index) => (
+            {["Ranked Solo", "Ranked Flex"].map((queue, index) => (
                 <Accordion key={index}>
                     {/* holds for the accordion of two queues, expands by clicking */}
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
