@@ -4,7 +4,7 @@
 
 "use client";
 import { useState } from "react";
-import MatchHistory from "@/components/match-history";
+import MatchHistory from "@/components/MatchHistory";
 import ProfileCard from "@/components/ProfileCard";
 import {Box, Stack, TextField, Button, Typography} from "@mui/material";
 
