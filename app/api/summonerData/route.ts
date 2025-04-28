@@ -4,6 +4,7 @@
 // code source: https://nextjs.org/learn/dashboard-app/adding-search-and-pagination
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers
 
+import {PlayerType} from "@/type"
 export async function GET(request: Request) {
 
     // shows error message if riot api is down
@@ -76,7 +77,7 @@ export async function GET(request: Request) {
         const matchDetail = await matchDetailRes.json();
 
        // Find the summoner's participant object using their PUUID
-        const participant = matchDetail.info.participants.find((p: any) => p.puuid === accountData.puuid);
+        const participant = matchDetail.info.participants.find((p: PlayerType) => p.puuid === accountData.puuid);
 
         // Extract the last played champion's name, default to "Lux" if not found
         const lastChampionName = participant?.championName || "Lux";
