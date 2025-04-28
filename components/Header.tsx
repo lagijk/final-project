@@ -1,5 +1,5 @@
 // File: app/components/Header.tsx
-// Author: Jihye Lee (jh020211@bu.edu)
+// Author: Jihye Lee (jh020211@bu.edu), Yutong Qin (yutongq@bu.edu) (updated) 4/26/2025
 // Description: Top navigation bar component for the app
 
 "use client";

@@ -85,6 +85,10 @@ export type LeagueItemDTO = {
   losses: number;
   summonerId: string;
   puuid: string;
+  profileIconId?: number;
+  lastChampionName?: string;
+  gameName?: string;
+  tagLine?: string;
 }
 
 export type LeagueListDTO = {
