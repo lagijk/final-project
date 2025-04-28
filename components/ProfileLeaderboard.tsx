@@ -35,10 +35,10 @@ export default function ProfileLeaderboard({
 
   // hold the avatar url that dynamically changed based on user's profileIconId
   const avatarUrl = `https://ddragon.leagueoflegends.com/cdn/15.8.1/img/profileicon/${profileIconId}.png`;
-  // hold the list of banner displayed for each player
-  const [bannerUrl, setBannerUrl] = useState<string>(`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_0.jpg`);
-  // hold for the state of text color
-  const [textColor, setTextColor] = useState("#fff");
+  // hold the list of banner displayed for each player, default as null
+  const [bannerUrl, setBannerUrl] = useState<string>("");
+  // determine the loading state for a banner
+  const [bannerLoad, setBannerLoad] = useState<boolean>(true);
 
   // hold for the displayName on player profile
   // if no data matched, shows the slice of the first 8 character in their summonerId
@@ -54,42 +54,20 @@ export default function ProfileLeaderboard({
     const testBanner = new Image();
     testBanner.src = tryUrl;
 
+    setBannerLoad(true);
+
     // if data fetched, display their last match champion
     // otherwise, the base handling is the default Lux
-    testBanner.onload = () => setBannerUrl(tryUrl);
-    testBanner.onerror = () =>
+    testBanner.onload = () => {
+      setBannerUrl(tryUrl);
+      setBannerLoad(false);
+    }
+
+    testBanner.onerror = () => {
       setBannerUrl(`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_0.jpg`);
+      setBannerLoad(false);
+    }
   }, [lastChampionName]);
-
-  // dynamically set text color based on the brightness analysis of banner
-  useEffect(() => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = bannerUrl;
-
-    img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        if (ctx) {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(canvas.width / 2, canvas.height / 2, 100, 100).data;
-
-            let r = 0, g = 0, b = 0;
-            for (let i = 0; i < imageData.length; i += 4) {
-                r += imageData[i];
-                g += imageData[i + 1];
-                b += imageData[i + 2];
-            }
-
-            const pixels = imageData.length / 4;
-            const brightness = (r + g + b) / (pixels * 3);
-            setTextColor(brightness > 130 ? "#000" : "#fff");
-        }
-    };
-}, [bannerUrl]);
 
   // calculate the winning rate based on fetched wins and losses
   const calcWinRate = (wins: number, losses: number) =>
@@ -99,13 +77,14 @@ export default function ProfileLeaderboard({
     // Profile display
     <Box
       sx={{
-        backgroundImage: `url(${bannerUrl})`,
+        backgroundImage: bannerUrl ? `url(${bannerUrl})` : "none",
+        backgroundColor: bannerLoad ? "#e0e0e0" : "transparent",
         backgroundSize: "cover",
         backgroundPosition: "center 25%",
         backgroundRepeat: "no-repeat",
         borderRadius: 3,
         p: 3,
-        color: textColor,
+        color: "#fff",
         minHeight: 230,
         maxHeight: 250,
         position: "relative",
