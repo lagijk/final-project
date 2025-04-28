@@ -68,7 +68,7 @@ export default function ProfileCard({ summonerName }: ProfileCardProps) {
     // Real typing effect
     useEffect(() => {
         if (loading) {
-            const text = "Summoning your champion...";
+            const text = "Loading Summoner Profile...";
             let idx = 0;
             const interval = setInterval(() => {
                 setTypedText(text.slice(0, idx + 1));
