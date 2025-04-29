@@ -98,3 +98,15 @@ export type LeagueListDTO = {
   name: string;
   queue: string
 }
+
+export type MatchDetail = {
+    metadata: {
+        matchId: string;
+        participants: string[];
+    };
+    info: {
+        participants: PlayerType[];
+        gameMode: string;
+        teams: { teamId: number; win: boolean }[];
+    };
+};
